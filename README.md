@@ -11,3 +11,6 @@ Dans la UI de DrawBot:
 3) Choisissez la vitesse et la taille du dessin.  
 4) Cliquez sur "Dessiner sur Edusign"
 5) Enjoy :)
+
+
+![](./sign.gif)
