@@ -10,11 +10,15 @@ run `run.bat`
 In the DrawBot UI:  
 1) Enter the daily signature URL,  
 2) Choose your best image (line-art images, like a single line for the outline, work best).  
-3) Choose the drawing speed and size.  
-4) Click on "Draw on Edusign"  
-5) Enjoy :)  
+3) Chose your mode: outline or full image mode.
+4) Choose the line thickness.  
+5) Choose the drawing size.
+6) You can avoid blank pixels if needed.  
+7) Click on "Draw on Edusign".
+8) Enjoy :)  
   
-<img width="602" height="843" alt="image" src="https://github.com/user-attachments/assets/07d5f57f-2ad9-4660-b433-4f379ebb956c" />
+![](./sign.gif)  
+<img width="301" height="421" alt="image" src="https://github.com/user-attachments/assets/07d5f57f-2ad9-4660-b433-4f379ebb956c" />
   
   
-![](./sign.gif)
+
