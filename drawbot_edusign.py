@@ -1,7 +1,7 @@
 """
 DrawBot pour Edusign - Dessine directement sur le canvas HTML5
-Installation: pip install selenium pillow numpy webdriver-manager
-Usage: python drawbot_simple.py
+Installation: pip install -r requirements.txt
+Usage: python drawbot_edusign.py
 """
 
 from selenium import webdriver
@@ -10,6 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from PIL import Image
 import numpy as np
+import cv2
 import time
 import tkinter as tk
 from tkinter import filedialog, messagebox
@@ -109,22 +110,45 @@ class EdusignDrawBot:
         )
         frame_opt.pack(fill="x", padx=20, pady=10)
         
-        speed_frame = tk.Frame(frame_opt, bg="white")
-        speed_frame.pack(fill="x", pady=5)
+        # Mode de dessin
+        mode_frame = tk.Frame(frame_opt, bg="white")
+        mode_frame.pack(fill="x", pady=5)
         
-        tk.Label(speed_frame, text="Vitesse:", bg="white").pack(side="left", padx=5)
-        self.speed_var = tk.IntVar(value=5)
+        tk.Label(mode_frame, text="Mode:", bg="white", font=("Arial", 10, "bold")).pack(side="left", padx=5)
+        
+        self.mode_var = tk.StringVar(value="contours")
+        tk.Radiobutton(
+            mode_frame,
+            text="Contours uniquement",
+            variable=self.mode_var,
+            value="contours",
+            bg="white"
+        ).pack(side="left", padx=10)
+        tk.Radiobutton(
+            mode_frame,
+            text="Image complète",
+            variable=self.mode_var,
+            value="full",
+            bg="white"
+        ).pack(side="left", padx=10)
+        
+        # Épaisseur des traits
+        thickness_frame = tk.Frame(frame_opt, bg="white")
+        thickness_frame.pack(fill="x", pady=5)
+        
+        tk.Label(thickness_frame, text="Épaisseur des traits:", bg="white").pack(side="left", padx=5)
+        self.thickness_var = tk.IntVar(value=1)
         tk.Scale(
-            speed_frame,
+            thickness_frame,
             from_=1,
-            to=10,
+            to=4,
             orient="horizontal",
-            variable=self.speed_var,
+            variable=self.thickness_var,
             bg="white",
-            length=200
+            length=150
         ).pack(side="left", padx=5)
         
-        # Nouvelle option: taille de l'image
+        # Taille de l'image
         size_frame = tk.Frame(frame_opt, bg="white")
         size_frame.pack(fill="x", pady=5)
         
@@ -215,12 +239,39 @@ class EdusignDrawBot:
         if self.driver and self.image_path:
             self.btn_draw.config(state="normal")
     
+    def extract_contours(self, img, thickness=2):
+        """Extrait uniquement les traits noirs de l'image"""
+        # Convertir en niveaux de gris
+        gray = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2GRAY)
+        
+        # Seuillage : garder uniquement les pixels très sombres (traits noirs)
+        # Pixels < 100 = noir → deviennent blanc (255)
+        # Pixels >= 100 = clair → deviennent noir (0)
+        _, binary = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY_INV)
+        
+        # Squelettisation : réduire les traits épais à 1 pixel
+        try:
+            skeleton = cv2.ximgproc.thinning(binary)
+        except:
+            # Si ximgproc pas dispo, utiliser érosion simple
+            kernel = np.ones((2, 2), np.uint8)
+            skeleton = cv2.erode(binary, kernel, iterations=1)
+        
+        # Dilater selon l'épaisseur choisie
+        if thickness > 1:
+            kernel = np.ones((thickness, thickness), np.uint8)
+            skeleton = cv2.dilate(skeleton, kernel, iterations=1)
+        
+        # Inverser : traits noirs sur fond blanc
+        result = cv2.bitwise_not(skeleton)
+        
+        # Convertir en RGB
+        result_rgb = cv2.cvtColor(result, cv2.COLOR_GRAY2RGB)
+        
+        return Image.fromarray(result_rgb)
+    
     def resize_image_proportional(self, img, canvas_width, canvas_height, scale_percent):
-        """
-        Redimensionne l'image proportionnellement pour tenir dans le canvas
-        sans déformation, puis applique le facteur d'échelle
-        """
-        # Dimensions originales
+        """Redimensionne l'image proportionnellement sans déformation"""
         img_width, img_height = img.size
         
         # Calculer le ratio pour tenir dans le canvas
@@ -246,7 +297,7 @@ class EdusignDrawBot:
         offset_y = (canvas_height - new_height) // 2
         canvas_img.paste(img_resized, (offset_x, offset_y))
         
-        return canvas_img, offset_x, offset_y, new_width, new_height
+        return canvas_img
     
     def start_drawing(self):
         if not self.driver or not self.image_path:
@@ -268,13 +319,21 @@ class EdusignDrawBot:
             
             # Charger l'image et la redimensionner proportionnellement
             img = Image.open(self.image_path)
+            
+            # Extraire les contours si mode contours
+            if self.mode_var.get() == "contours":
+                self.status.config(text="🔍 Extraction des contours...", fg="#2196F3")
+                self.window.update()
+                thickness = self.thickness_var.get()
+                img = self.extract_contours(img, thickness)
+            
             scale_percent = self.size_var.get()
             
-            img_final, offset_x, offset_y, img_w, img_h = self.resize_image_proportional(
+            img_final = self.resize_image_proportional(
                 img, canvas_width, canvas_height, scale_percent
             )
             
-            self.status.config(text=f"🎨 Image: {img_w}x{img_h} (centrée)", fg="#2196F3")
+            self.status.config(text="🎨 Préparation du dessin...", fg="#2196F3")
             time.sleep(1)
             
             pixels = np.array(img_final.convert('RGB'))
@@ -367,6 +426,6 @@ class EdusignDrawBot:
 
 if __name__ == "__main__":
     print("🎨 DrawBot pour Edusign")
-    print("Installation: pip install selenium pillow numpy webdriver-manager")
+    print("Installation: pip install -r requirements.txt")
     app = EdusignDrawBot()
     app.run()
