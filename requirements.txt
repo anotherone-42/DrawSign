@@ -1,6 +1,7 @@
 selenium>=4.15.0
 pillow>=10.0.0
 numpy>=1.24.0
+opencv-contrib-python>=4.8.0
 webdriver-manager>=4.0.0
-pyautogui>=0.9.54
-pynput>=1.7.6
+# Chrome sera géré automatiquement par webdriver-manager
+# Assurez-vous d'avoir Google Chrome installé sur votre PC
