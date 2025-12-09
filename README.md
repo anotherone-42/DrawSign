@@ -17,6 +17,6 @@ In the DrawBot UI:
 7) Click on "Draw on Edusign".
 8) Enjoy :)  
   
-<img width="301" height="421" alt="image" src="https://github.com/user-attachments/assets/07d5f57f-2ad9-4660-b433-4f379ebb956c" />
+<img width="451.5" height="631.5" alt="image" src="https://github.com/user-attachments/assets/07d5f57f-2ad9-4660-b433-4f379ebb956c" />
     
 ![](./sign.gif)  
