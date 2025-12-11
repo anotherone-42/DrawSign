@@ -1,15 +1,14 @@
 @echo off
 echo ========================================
-echo    DrawBot Edusign - Demarrage
+echo    DrawSign v2.0 - Starting
 echo ========================================
 
-if not exist "venv\" (
-    echo [ERREUR] Venv inexistant
-    echo Lancez setup.bat d'abord
+if not exist "venv\Scripts\python.exe" (
+    echo [ERROR] Virtual environment not found
+    echo Run setup.py first
     pause
     exit /b 1
 )
 
-call venv\Scripts\activate.bat
-python drawbot_edusign.py
+venv\Scripts\python.exe drawbot_edusign.py
 pause
