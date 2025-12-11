@@ -101,11 +101,3 @@ Pull requests are welcome! Feel free to open issues for bugs or feature requests
 ## 📝 License
 
 MIT License
-
-## ⚠️ Disclaimer
-
-Educational project. Ensure automated signatures comply with your institution's policies.
-
----
-
-**⭐ Star this repo if it helps you!**
