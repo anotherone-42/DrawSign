@@ -9,6 +9,7 @@ import subprocess
 import platform
 import os
 import venv
+import urllib.request
 
 def detect_os():
     """Détecte automatiquement le système d'exploitation"""
@@ -24,8 +25,37 @@ def create_venv():
         return venv_path
     
     print(f"\n📦 Creating virtual environment: {venv_path}")
-    venv.create(venv_path, with_pip=True)
-    print("✅ Virtual environment created")
+    try:
+        venv.create(venv_path, with_pip=True)
+        print("✅ Virtual environment created")
+    except Exception as e:
+        print(f"⚠️  Error creating venv with pip: {e}")
+        print("🔧 Trying alternative method...")
+        
+        # Méthode alternative : créer sans pip puis installer manuellement
+        venv.create(venv_path, with_pip=False)
+        
+        # Installer pip manuellement
+        venv_python = get_venv_python(venv_path)
+        
+        print("📥 Downloading get-pip.py...")
+        import urllib.request
+        get_pip_url = "https://bootstrap.pypa.io/get-pip.py"
+        get_pip_path = "get-pip.py"
+        
+        try:
+            urllib.request.urlretrieve(get_pip_url, get_pip_path)
+            print("📦 Installing pip in venv...")
+            subprocess.check_call([venv_python, get_pip_path])
+            os.remove(get_pip_path)
+            print("✅ Pip installed successfully")
+        except Exception as pip_error:
+            print(f"❌ Failed to install pip: {pip_error}")
+            print("\n💡 Manual fix:")
+            print(f"   1. Delete venv: rm -rf {venv_path}")
+            print("   2. Install python3-venv: sudo apt install python3-venv")
+            print("   3. Run setup.py again")
+            raise
     
     return venv_path
 
@@ -34,9 +64,21 @@ def get_venv_python(venv_path):
     os_type = detect_os()
     
     if os_type == "windows":
-        return os.path.join(venv_path, "Scripts", "python.exe")
+        python_path = os.path.join(venv_path, "Scripts", "python.exe")
     else:
-        return os.path.join(venv_path, "bin", "python3")
+        # Essayer python3 d'abord, puis python
+        python3_path = os.path.join(venv_path, "bin", "python3")
+        python_path = os.path.join(venv_path, "bin", "python")
+        
+        if os.path.exists(python3_path):
+            return python3_path
+        elif os.path.exists(python_path):
+            return python_path
+        else:
+            # Fallback
+            return python3_path
+    
+    return python_path
 
 def install_packages(venv_python, packages):
     """Installe les packages Python dans le venv"""
