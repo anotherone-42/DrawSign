@@ -4,8 +4,7 @@ Automatic bot to draw on Edusign - Windows & Linux compatible
 
 ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-windows%20%7C%20linux-lightgrey.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-
+![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)
 ## ✨ Features
 
 - ✅ Automatically draws on Edusign canvas
