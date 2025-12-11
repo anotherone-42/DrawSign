@@ -99,4 +99,4 @@ Pull requests are welcome! Feel free to open issues for bugs or feature requests
 
 ## 📝 License
 
-MIT License
+AGPL-3.0
